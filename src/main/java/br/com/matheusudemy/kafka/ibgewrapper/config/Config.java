@@ -1,5 +1,6 @@
 package br.com.matheusudemy.kafka.ibgewrapper.config;
 
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.AsyncTaskExecutor;

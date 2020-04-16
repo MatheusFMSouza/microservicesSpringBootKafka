@@ -1,5 +1,6 @@
 package br.com.matheusudemy.kafka.ibgewrapper.config;
 
+
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -27,9 +28,6 @@ public class KafkaConfig {
 
     @Value("${kafka.topic.requestreply-topic}")
     private String requestReplyTopic;
-
-    @Value("${kafka.topic.requestreply-topic-cidade}")
-    private String requestReplyTopicCidade;
 
     @Value("${kafka.consumergroup}")
     private String consumerGroup;
@@ -75,7 +73,7 @@ public class KafkaConfig {
 
     @Bean
     public KafkaMessageListenerContainer<String, String> replyContainer(ConsumerFactory<String, String> cf) {
-        ContainerProperties containerProperties = new ContainerProperties(requestReplyTopic, requestReplyTopicCidade);
+        ContainerProperties containerProperties = new ContainerProperties(requestReplyTopic);
         return new KafkaMessageListenerContainer<>(cf, containerProperties);
     }
 

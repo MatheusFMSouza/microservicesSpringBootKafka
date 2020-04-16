@@ -1,8 +1,10 @@
 package br.com.matheusudemy.kafka.ibgewrapper.gateway.listener;
 
-import br.com.matheusudemy.kafka.ibgewrapper.gateway.json.EstadoJSON;
-import br.com.matheusudemy.kafka.ibgewrapper.gateway.json.EstadoList;
-import br.com.matheusudemy.kafka.ibgewrapper.services.estado.ConsultarEstadoService;
+
+import br.com.matheusudemy.kafka.ibgewrapper.gateway.json.CidadeJSON;
+import br.com.matheusudemy.kafka.ibgewrapper.gateway.json.CidadeList;
+import br.com.matheusudemy.kafka.ibgewrapper.gateway.json.EstadoRequestTopicJson;
+import br.com.matheusudemy.kafka.ibgewrapper.services.cidade.ConsultarCidadePorCodigoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,24 +18,21 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class EstadoListener {
+public class CidadeListener {
 
     @Autowired
-    private ConsultarEstadoService consultarEstadoService;
+    private ConsultarCidadePorCodigoService consultarCidadePorCodigoService;
 
-    @KafkaListener(topics = "${kafka.topic.request-topic}")
-    public Message<String> execute(@Header(KafkaHeaders.REPLY_TOPIC) byte[] replyTo,
+    @KafkaListener(topics = "${kafka.topic.request-topic-cidade}")
+    public Message<String> execute(String in, @Header(KafkaHeaders.REPLY_TOPIC) byte[] replyTo,
                                    @Header(KafkaHeaders.CORRELATION_ID) byte[] correlation) throws JsonProcessingException {
 
-        long tempoInicial = System.currentTimeMillis();
-
         ObjectMapper mapper = new ObjectMapper();
+        EstadoRequestTopicJson json = mapper.readValue(in, EstadoRequestTopicJson.class);
 
-        List<EstadoJSON> listEstados = consultarEstadoService.execute();
+        List<CidadeJSON> list = consultarCidadePorCodigoService.execute(json.getUf());
 
-        String jsonReturn = mapper.writeValueAsString(EstadoList.builder().list(listEstados).build());
-
-        System.out.printf("Dentro do Listener de estado: %.3f ms%n", (System.currentTimeMillis() - tempoInicial) / 1000d);
+        String jsonReturn = mapper.writeValueAsString(CidadeList.builder().list(list).build());
 
         return MessageBuilder.withPayload(jsonReturn)
                 .setHeader(KafkaHeaders.TOPIC, replyTo)
